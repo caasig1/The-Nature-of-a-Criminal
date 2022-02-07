@@ -1,0 +1,392 @@
+---
+title: "The Nature of a Criminal"
+author: 
+  - Isaac Ng
+thanks: "Code and data are available at: LINK."
+date: "`r format(Sys.time(), '%d %B %Y')`"
+abstract: "In this paper, data from Open Data Toronto is used to find a relationship between a given crime and where it occurs. Although crime rates have fluctuated for each neighbourhood each year, the neighbourhoods with higher crime rates have stayed above the average Toronto Neighbourhood's crime rate. Using demographic data in parallel with crime data, certain crimes were found to be more likely to occur in a certain demographic of neighbourhood while others held no such relationship. Without a complete picture of detailed demographic data linked to each crime, the fundamental urges of criminals are unlikely to be found thus, limiting how humans can better nurture the next generation."
+output:
+  bookdown::pdf_document2
+toc: TRUE
+bibliography: references.bib
+header-includes:
+  \usepackage{float}
+  \floatplacement{figure}{H}
+  \floatplacement{table}{H}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# libraries used
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(kableExtra)
+library(bookdown)
+library(here)
+library(opendatatoronto)
+library(float)
+
+# data from CSV
+crimes <- 
+  read_csv(here::here("inputs/data/crimes.csv"))
+
+# Reformatting of the data (repetitive for each crime)
+top_auto_theft <- crimes |> 
+  select(Neighbourhood, AutoTheft_Rate2020, AutoTheft_Rate2019, AutoTheft_Rate2018, AutoTheft_Rate2017, AutoTheft_Rate2016) |>
+  arrange(desc(AutoTheft_Rate2020))
+
+# Top 10 neighbourhoods with highest crime rates selected
+auto <- unlist(unname(top_auto_theft[-1] |> slice(1)))
+auto <- append(auto, unlist(unname(top_auto_theft[-1] |> slice(2))))
+auto <- append(auto, unlist(unname(top_auto_theft[-1] |> slice(3))))
+auto <- append(auto, unlist(unname(top_auto_theft[-1] |> slice(4))))
+auto <- append(auto, unlist(unname(top_auto_theft[-1] |> slice(5))))
+auto <- append(auto, unlist(unname(top_auto_theft[-1] |> slice(6))))
+auto <- append(auto, unlist(unname(top_auto_theft[-1] |> slice(7))))
+auto <- append(auto, unlist(unname(top_auto_theft[-1] |> slice(8))))
+auto <- append(auto, unlist(unname(top_auto_theft[-1] |> slice(9))))
+auto <- append(auto, unlist(unname(top_auto_theft[-1] |> slice(10))))
+
+# Include the average rate for Toronto
+auto_averages <- c(mean(c(unlist(unname(top_auto_theft[2])))), mean(c(unlist(unname(top_auto_theft[3])))), mean(c(unlist(unname(top_auto_theft[4])))), mean(c(unlist(unname(top_auto_theft[5])))), mean(c(unlist(unname(top_auto_theft[6])))))
+auto <- append(auto, auto_averages)
+
+# Include the name "Average" for its statistics
+auto_neighbourhoods <- c(unlist(unname(top_auto_theft[1] |> slice(1:10))))
+auto_neighbourhoods <- append(auto_neighbourhoods, "Average")
+auto_names <- rep(c(auto_neighbourhoods), each=5)
+
+# Restructure the data frame
+top_auto_theft <- data.frame(Neighbourhoods= auto_names,
+        Year=rep(c("2020","2019","2018","2017","2016"),11),
+        rate= c(auto))
+
+# The rest is repetitive from the above
+top_bne <- crimes |> 
+  select(Neighbourhood, BreakAndEnter_Rate2020, BreakAndEnter_Rate2019, BreakAndEnter_Rate2018, BreakAndEnter_Rate2017, BreakAndEnter_Rate2016) |>
+  arrange(desc(BreakAndEnter_Rate2020))
+
+bne = unlist(unname(top_bne[-1] |> slice(1)))
+bne <- append(bne, unlist(unname(top_bne[-1] |> slice(2))))
+bne <- append(bne, unlist(unname(top_bne[-1] |> slice(3))))
+bne <- append(bne, unlist(unname(top_bne[-1] |> slice(4))))
+bne <- append(bne, unlist(unname(top_bne[-1] |> slice(5))))
+bne <- append(bne, unlist(unname(top_bne[-1] |> slice(6))))
+bne <- append(bne, unlist(unname(top_bne[-1] |> slice(7))))
+bne <- append(bne, unlist(unname(top_bne[-1] |> slice(8))))
+bne <- append(bne, unlist(unname(top_bne[-1] |> slice(9))))
+bne <- append(bne, unlist(unname(top_bne[-1] |> slice(10))))
+
+bne_averages <- c(mean(c(unlist(unname(top_bne[2])))), mean(c(unlist(unname(top_bne[3])))), mean(c(unlist(unname(top_bne[4])))), mean(c(unlist(unname(top_bne[5])))), mean(c(unlist(unname(top_bne[6])))))
+bne <- append(bne, bne_averages)
+
+bne_neighbourhoods <- c(unlist(unname(top_bne[1] |> slice(1:10))))
+bne_neighbourhoods <- append(bne_neighbourhoods, "Average")
+bne_names <- rep(c(bne_neighbourhoods), each=5)
+
+top_bne <- data.frame(Neighbourhoods= bne_names,
+        Year=rep(c("2020","2019","2018","2017","2016"),11),
+        rate= c(bne))
+
+top_robbery <- crimes |> 
+  select(Neighbourhood, Robbery_Rate2020, Robbery_Rate2019, Robbery_Rate2018, Robbery_Rate2017, Robbery_Rate2016) |>
+  arrange(desc(Robbery_Rate2020))
+
+rob = unlist(unname(top_robbery[-1] |> slice(1)))
+rob <- append(rob, unlist(unname(top_robbery[-1] |> slice(2))))
+rob <- append(rob, unlist(unname(top_robbery[-1] |> slice(3))))
+rob <- append(rob, unlist(unname(top_robbery[-1] |> slice(4))))
+rob <- append(rob, unlist(unname(top_robbery[-1] |> slice(5))))
+rob <- append(rob, unlist(unname(top_robbery[-1] |> slice(6))))
+rob <- append(rob, unlist(unname(top_robbery[-1] |> slice(7))))
+rob <- append(rob, unlist(unname(top_robbery[-1] |> slice(8))))
+rob <- append(rob, unlist(unname(top_robbery[-1] |> slice(9))))
+rob <- append(rob, unlist(unname(top_robbery[-1] |> slice(10))))
+
+rob_averages <- c(mean(c(unlist(unname(top_robbery[2])))), mean(c(unlist(unname(top_robbery[3])))), mean(c(unlist(unname(top_robbery[4])))), mean(c(unlist(unname(top_robbery[5])))), mean(c(unlist(unname(top_robbery[6])))))
+rob <- append(rob, rob_averages)
+
+rob_neighbourhoods <- c(unlist(unname(top_robbery[1] |> slice(1:10))))
+rob_neighbourhoods <- append(rob_neighbourhoods, "Average")
+rob_names <- rep(c(rob_neighbourhoods), each=5)
+
+top_robbery <- data.frame(Neighbourhoods= rob_names,
+        Year=rep(c("2020","2019","2018","2017","2016"),11),
+        rate= c(rob))
+
+bot_auto_theft <- crimes |> 
+  select(Neighbourhood, AutoTheft_Rate2020, AutoTheft_Rate2019, AutoTheft_Rate2018, AutoTheft_Rate2017, AutoTheft_Rate2016) |>
+  arrange(AutoTheft_Rate2020)
+
+
+bot_auto <- unlist(unname(bot_auto_theft[-1] |> slice(1)))
+bot_auto <- append(bot_auto, unlist(unname(bot_auto_theft[-1] |> slice(2))))
+bot_auto <- append(bot_auto, unlist(unname(bot_auto_theft[-1] |> slice(3))))
+bot_auto <- append(bot_auto, unlist(unname(bot_auto_theft[-1] |> slice(4))))
+bot_auto <- append(bot_auto, unlist(unname(bot_auto_theft[-1] |> slice(5))))
+bot_auto <- append(bot_auto, unlist(unname(bot_auto_theft[-1] |> slice(6))))
+bot_auto <- append(bot_auto, unlist(unname(bot_auto_theft[-1] |> slice(7))))
+bot_auto <- append(bot_auto, unlist(unname(bot_auto_theft[-1] |> slice(8))))
+bot_auto <- append(bot_auto, unlist(unname(bot_auto_theft[-1] |> slice(9))))
+bot_auto <- append(bot_auto, unlist(unname(bot_auto_theft[-1] |> slice(10))))
+
+bot_auto_averages <- c(mean(c(unlist(unname(bot_auto_theft[2])))), mean(c(unlist(unname(bot_auto_theft[3])))), mean(c(unlist(unname(bot_auto_theft[4])))), mean(c(unlist(unname(bot_auto_theft[5])))), mean(c(unlist(unname(bot_auto_theft[6])))))
+bot_auto <- append(bot_auto, bot_auto_averages)
+
+bot_auto_neighbourhoods <- c(unlist(unname(bot_auto_theft[1] |> slice(1:10))))
+bot_auto_neighbourhoods <- append(bot_auto_neighbourhoods, "Average")
+bot_auto_names <- rep(c(bot_auto_neighbourhoods), each=5)
+
+bot_auto_theft <- data.frame(Neighbourhoods= bot_auto_names,
+        Year=rep(c("2020","2019","2018","2017","2016"),11),
+        rate= c(bot_auto))
+
+bot_bne <- crimes |> 
+  select(Neighbourhood, BreakAndEnter_Rate2020, BreakAndEnter_Rate2019, BreakAndEnter_Rate2018, BreakAndEnter_Rate2017, BreakAndEnter_Rate2016) |>
+  arrange(BreakAndEnter_Rate2020)
+
+bott_bne = unlist(unname(bot_bne[-1] |> slice(1)))
+bott_bne <- append(bott_bne, unlist(unname(bot_bne[-1] |> slice(2))))
+bott_bne <- append(bott_bne, unlist(unname(bot_bne[-1] |> slice(3))))
+bott_bne <- append(bott_bne, unlist(unname(bot_bne[-1] |> slice(4))))
+bott_bne <- append(bott_bne, unlist(unname(bot_bne[-1] |> slice(5))))
+bott_bne <- append(bott_bne, unlist(unname(bot_bne[-1] |> slice(6))))
+bott_bne <- append(bott_bne, unlist(unname(bot_bne[-1] |> slice(7))))
+bott_bne <- append(bott_bne, unlist(unname(bot_bne[-1] |> slice(8))))
+bott_bne <- append(bott_bne, unlist(unname(bot_bne[-1] |> slice(9))))
+bott_bne <- append(bott_bne, unlist(unname(bot_bne[-1] |> slice(10))))
+
+bott_bne_averages <- c(mean(c(unlist(unname(bot_bne[2])))), mean(c(unlist(unname(bot_bne[3])))), mean(c(unlist(unname(bot_bne[4])))), mean(c(unlist(unname(bot_bne[5])))), mean(c(unlist(unname(bot_bne[6])))))
+bott_bne <- append(bott_bne, bott_bne_averages)
+
+bott_bne_neighbourhoods <- c(unlist(unname(bot_bne[1] |> slice(1:10))))
+bott_bne_neighbourhoods <- append(bott_bne_neighbourhoods, "Average")
+bott_bne_names <- rep(c(bott_bne_neighbourhoods), each=5)
+
+bot_bne <- data.frame(Neighbourhoods= bott_bne_names,
+        Year=rep(c("2020","2019","2018","2017","2016"),11),
+        rate= c(bott_bne))
+
+bot_robbery <- crimes |> 
+  select(Neighbourhood, Robbery_Rate2020, Robbery_Rate2019, Robbery_Rate2018, Robbery_Rate2017, Robbery_Rate2016) |>
+  arrange(Robbery_Rate2020)
+
+bot_rob = unlist(unname(bot_robbery[-1] |> slice(1)))
+bot_rob <- append(bot_rob, unlist(unname(bot_robbery[-1] |> slice(2))))
+bot_rob <- append(bot_rob, unlist(unname(bot_robbery[-1] |> slice(3))))
+bot_rob <- append(bot_rob, unlist(unname(bot_robbery[-1] |> slice(4))))
+bot_rob <- append(bot_rob, unlist(unname(bot_robbery[-1] |> slice(5))))
+bot_rob <- append(bot_rob, unlist(unname(bot_robbery[-1] |> slice(6))))
+bot_rob <- append(bot_rob, unlist(unname(bot_robbery[-1] |> slice(7))))
+bot_rob <- append(bot_rob, unlist(unname(bot_robbery[-1] |> slice(8))))
+bot_rob <- append(bot_rob, unlist(unname(bot_robbery[-1] |> slice(9))))
+bot_rob <- append(bot_rob, unlist(unname(bot_robbery[-1] |> slice(10))))
+
+bot_rob_averages <- c(mean(c(unlist(unname(bot_robbery[2])))), mean(c(unlist(unname(bot_robbery[3])))), mean(c(unlist(unname(bot_robbery[4])))), mean(c(unlist(unname(bot_robbery[5])))), mean(c(unlist(unname(bot_robbery[6])))))
+bot_rob <- append(bot_rob, bot_rob_averages)
+
+bot_rob_neighbourhoods <- c(unlist(unname(bot_robbery[1] |> slice(1:10))))
+bot_rob_neighbourhoods <- append(bot_rob_neighbourhoods, "Average")
+bot_rob_names <- rep(c(bot_rob_neighbourhoods), each=5)
+
+bot_robbery <- data.frame(Neighbourhoods= bot_rob_names,
+        Year=rep(c("2020","2019","2018","2017","2016"),11),
+        rate= c(bot_rob))
+```
+
+# Introduction
+
+Nature versus nurture is one of the oldest debates in psychology and revolves around which has a larger impact on one's behaviour. In short, nature refers to genes and hereditary factors while nurture refers to the surrounding environmental factors that influence personality. Nature goes down to our DNA. When it comes to knowing one's heritage, even the DNA test kits available today are not entirely accurate according to WebMD [@webMD]. Nurture focuses on external factors affecting a person's character. This includes how and where they were raised, the people in their close circles, and events occurring around them. Looking at the world, there are some who have turned to a life of crime and when searching for answers, one can only wonder whether nurture or nature has played a larger role in their choices. "You inherit your environment just as much as your genes.” [@quote].
+
+Focusing on crime, the reasons for which they occur are plentiful. When considering the risks and rewards of a crime, the criminal justifies the risk as worth the reward before proceeding with the crime. In order to fully flush out the value of nature and the role it plays in one's character, the demographics of a given crime must be understood. Knowing which demographic of people are more likely to commit certain crimes alongside who is more likely to fall victim will help us better understand why these crimes occur. As previously mentioned, the list of reasons for which the crime is committed is endless. Given details such as ages of those involved, income, and geographic location could allow us to better prepare ourselves to raise the next generation. Unfortunately, crime reports do not include such details and thus, a broader sense of demographics must be analyzed. Given the crime rate in a certain neighbourhhood, we can compare them to its neighbourhood profile in order to access a better understanding of who has been affected by said crimes.
+
+In this paper, I will use crime data from the City of Toronto to explore three different types of crimes; auto theft, breaking and entering, and robbery. I will then focus on neighborhoods in Toronto with the highest and the lowest crime rates. Using  neighborhood profiles from the 2016 Census, I will compare neighborhood demographics for those with high and low crime rates. Rates involving poverty, the amount of people living in unaffordable housing, the number of visible minorities, and the amount of people with a higher education are the considerations made concerning demographics. Using these demographics, I find that each type of crime relates to the poverty level, level of people living in unaffordable housing, and level of education. I also find that there is little to no relationship between these crimes and levels of visible minorities. Neighbourhoods with high levels of auto theft seem to relate to lower levels of poverty, less people in unaffordable housing, and a lower level of education. Neighbourhoods with higher levels of breaking and entering seem to have higher rates of poverty, more people in unaffordable housing, and more people with a bachelor's degree or higher. Places with higher levels of robbery seem to happen in all sorts of neighbourhoods and do not have a clear relationship to any of the properties examined in the neighbourhood's demographics. Low crime rate neighbourhoods chosen shows little to no relationship to its demographics. In Section \@ref(data) Data, I discuss the tools/instruments used as well as show graphs/tables of the relevant data collected. In Section \@ref(results) Results, I neatly gather my data and discuss notable data points. In Section \@ref(discussion) Discussion, I discuss the demographics of each neighborhood, compare them to one another, discuss weaknesses and next steps. In my conclusion, I summarize my findings and final thoughts. Although there are trends in demographic among neighbourhoods with high levels of crime rate, they do not paint a complete and accurate picture of who commits said crimes and who falls victim to them.
+
+# Data
+## Data Source
+For this paper, data is analyzed using R, a programming language for statistical computing and graphics [@citeR]. The package tidyverse is used to help manipulate the data [@tidyverse]. The data is pulled from the package opendatatoronto [@opendatatoronto]. Since we use R projects to manage our data, we use here [@here] to reference file locations. bookdown [@bookdown] is used for the formatting of the project. In order to keep tables and figures in place, package float [@float] is used. To manipulate the data, dplyr [@dplyr] is used and to draw plots, ggplot2 [@ggplot2] is used. To include a nicely formatted table, [@kable] is used. For the data regarding crime, [@crime] is used and for demographics, the data is from [@census]
+
+## Data Collection
+Crime data used in the data set is from the Neighbourhood Crime Rates [@crime] data set from Open Data Toronto includes each neighbourhood and its neighbourhood number, its population (which only consists of their resident population, not their temporary population i.e. commuters), and crime data occurring between the years 2014 and 2020. Types of crimes included in this data set are Assault, Auto Theft, Breaking and Entering, Robbery, Theft Over, Homicide, and Shooting and Firearm Discharges. The data collected on each neighbourhood for each crime and for each year include the total number of crimes, as well as their respective crime rates per 100,000 population. When comparing crime count, crime rate proves a fairer comparison of the crime as it takes into account the population changes in each region.
+
+The crimes further analyzed in this paper include Auto Theft, Breaking and Entering, and Robbery. When examining the data, I noticed that the 10 neighbourhoods with the highest crime rates (for each crime) have minor fluctuations; the few neighbourhoods with the highest crime rates have remained in the top 10 (above a Toronto Neighbourhood's average crime rate) from 2016 through to 2020. With regards to the crime genre, the chosen crimes show some overlap in neighbourhoods as well as diversity in the nature of the crimes. Crimes more easily carried out can be done little to no preparation and/or equipment. For these types of crimes, one might imagine robbery or breaking and entering. Higher-end crimes can be described as ones requiring more planning and preparation and/or equipment. Auto theft encapsulates the nature of these crimes. With a diversity in types of crime, comparing neighbourhoods with high rates of crime to neighbourhoods to their counterparts with lower rates of crime should show a contrasting picture.
+
+Demographic data used in this paper, seen in the \@ref(discussion) Discussion portion of the paper, comes from the Nieghbourhood Profiles data set from a census of Toronto taken in 2016, found on the Nieghbourhood Profiles webpage [@census]. On this webpage, there is data for each of Toronto's 140 social planning neighbourhoods. The data is collected from the Census of Population, which is held by Canada every 5 years and includes information about age, sex, families and households, language, immigration and internal migration, ethnocultural diversity, Aboriginal peoples, housing, education, income, and labour. The Census was last conducted in 2016, which is the year this data was collected. Due to this, the data used from Neighbourhood Crime Rates will only include years following 2016.
+
+```{r topautotheft, fig.cap="Highest Neighbourhood Auto Theft Rate per 100,000 Population", fig.height=4 ,echo = FALSE, warning=FALSE, message=FALSE}
+top_auto_theft |>
+  ggplot(aes(x = Year, 
+             y = rate,
+             fill = Neighbourhoods)) + 
+  geom_bar(stat="identity", position=position_dodge())+
+  ylab("Auto Theft Rate per 100,000") +
+  ggtitle("Highest Toronto Auto Theft Rates") + 
+  theme(text = element_text(size = 12, family = "serif"))
+```
+
+```{r botautotheft, fig.cap="Lowest Neighbourhood Auto Theft Rate per 100,000 Population", fig.height=4, echo = FALSE, warning=FALSE, message=FALSE}
+bot_auto_theft |>
+  ggplot(aes(x = Year, 
+             y = rate,
+             fill = Neighbourhoods)) + 
+  geom_bar(stat="identity", position=position_dodge())+
+  ylab("Auto Theft Rate per 100,000") +
+  ggtitle("Lowest Toronto Auto Theft Rates") + 
+  theme(text = element_text(size = 12, family = "serif"))
+```
+
+```{r toprobbery, fig.cap="Highest Neighbourhood Robbery Rate per 100,000 Population", fig.height=4, echo = FALSE, warning=FALSE, message=FALSE}
+top_robbery |>
+  ggplot(aes(x = Year, 
+             y = rate,
+             fill = Neighbourhoods)) + 
+  geom_bar(stat="identity", position=position_dodge())+
+  ylab("Robbery Rate per 100,000") +
+  ggtitle("Highest Toronto Robbery Rates 2020") + 
+  theme(text = element_text(size = 12, family = "serif"))
+```
+
+```{r botrobbery, fig.cap="Lowest Neighbourhood Robbery Rate per 100,000 Population", fig.height=4, echo = FALSE, warning=FALSE, message=FALSE}
+bot_robbery |>
+  ggplot(aes(x = Year, 
+             y = rate,
+             fill = Neighbourhoods)) + 
+  geom_bar(stat="identity", position=position_dodge())+
+  ylab("Robbery Rate per 100,000") +
+  ggtitle("Lowest Toronto Robbery Rates 2020") + 
+  theme(text = element_text(size = 12, family = "serif"))
+```
+
+```{r topbreak, fig.cap="Highest Neighbourhood Breaking and Entering Rate per 100,000 Population", fig.height=4, echo = FALSE, warning=FALSE, message=FALSE}
+top_bne |>
+  ggplot(aes(x = Year, 
+             y = rate,
+             fill = Neighbourhoods)) + 
+  geom_bar(stat="identity", position=position_dodge())+
+  ylab("Break and Enter Rate per 100,000")+
+  ggtitle("Highest Toronto Break and Enter Rates 2020") + 
+  theme(text = element_text(size = 12, family = "serif"))
+```
+
+```{r botbreak, fig.cap="Lowest Neighbourhood Breaking and Entering Rate per 100,000 Population", fig.height=4, echo = FALSE, warning=FALSE, message=FALSE}
+bot_bne |>
+  ggplot(aes(x = Year, 
+             y = rate,
+             fill = Neighbourhoods)) + 
+  geom_bar(stat="identity", position=position_dodge())+
+  ylab("Break and Enter Rate per 100,000")+
+  ggtitle("Lowest Toronto Break and Enter Rates 2020") + 
+  theme(text = element_text(size = 12, family = "serif"))
+```
+
+```{r tablerates, fig.cap="Crime Rates", fig.height=4, echo = FALSE, warning=FALSE, message=FALSE}
+results <- crimes |> 
+  select(Neighbourhood, AutoTheft_Rate2020, Robbery_Rate2020, BreakAndEnter_Rate2020) |>
+  filter(Neighbourhood == "Ionview" | Neighbourhood == "Centennial Scarborough" | Neighbourhood == "Flemingdon Park" | Neighbourhood == "Humber Heights-Westmount" | Neighbourhood == "Moss Park" | Neighbourhood == "Kensington-Chinatown" | Neighbourhood == "Bay Street Corridor" | Neighbourhood == "Church-Yonge Corridor" | Neighbourhood == "Yorkdale-Glen Park" | Neighbourhood == "West Humber-Clairville" | Neighbourhood == "Humber Summit" | Neighbourhood == "University") |>
+  arrange(desc(Robbery_Rate2020))
+
+temp_avg <- crimes |>
+  select(Neighbourhood, AutoTheft_Rate2020, Robbery_Rate2020, BreakAndEnter_Rate2020)
+
+results[nrow(results)+1,] = list("Average", mean(c(unlist(unname(temp_avg[2])))), mean(c(unlist(unname(temp_avg[3])))), mean(c(unlist(unname(temp_avg[4])))))
+
+results |>
+  kable(caption = "Crime Rates for each Neighbourhood in 2020",
+        col.names = c("Neighbourhood", "Auto Theft Rate", "Robbery Rate", "Break and Enter Rate"),
+        digits = 1,
+        booktabs = TRUE,
+        linesep = "")
+```
+
+# Results
+
+In these figures, ten neighbourhoods with the highest/lowest crime rates from 2020 were compared over the past 5 years (since 2016). As mentioned previously, outliers within these neighbourhoods have been consistent with their higher/lower crime rates. In order to avoid any confusion or complicated legend, only these ten neighbourhoods have been analyzed over the 5 years (instead of using ten neighbourhoods with highest/lowest crime rates from each year). In Figure \@ref(fig:topautotheft), West-Humber Clairville and Humber Summit are the outliers, with consistently higher auto-theft rates in comparison to the other eight neighbourhoods. In Figure \@ref(fig:toprobbery), Moss Park, Church-Yonge Corridor, and Bay Street Corridor are the outliers, with consistently higher robbery rates. In Figure \@ref(fig:topbreak), Kensington-Chinatown, Moss Park, and University have consistently higher breaking and entering rates. Another noteworthy neighbourhood is Yorkdale-Glen Park as it appears in the top Auto Theft rates as well as Robbery rates. Within Figures \@ref(fig:botautotheft), \@ref(fig:botrobbery), and \@ref(fig:botbreak), a few neighbourhoods are noteable as they appear in two or all of the lowest crime rates. Instead of finding outliers, finding neighbourhoods with an all-around low crime rate seem more relevant. In this case, the four neighbourhoods selected are Ionview, Centennial Scarborough, Flemingdon Park, and Humber Heights-Westmount.
+
+In order to paint a full picture, comparing the crime rates of these neighbourhoods to the average crime rate for each category is necessary to view the disparity in crime rates between neighbourhoods with high, average and low crime rates. A simplified table containing only these statistics for 2020 can be found here (Table \@ref(tab:tablerates)). For the lower crime rate neighbourhoods, all their crime rates (apart from Humber Heights-Westmount's auto theft rate) are significantly below the average crime rate for any given neighbourhood in Toronto. On the otherhand, the higher crime rate neighbourhoods have all their crime rates (apart for auto theft on some neighbourhoods) above (or significantly above in some cases) their average rates in Toronto neighbourhoods.
+
+# Discussion
+
+While crime rates collected by the City of Toronto do not include demographic data, it is important to look deeper into the profiles of each neighbourhood. Demographics provide detailed information of the people living in each neighbourhood, and thus, the people involved in each crime. In the following sections, the whereabouts of each neighbourhood, along with various about the population, are further discussed.
+
+## High Crime Rate Neighbourhoods
+
+### Bay Street Corridor
+
+Bay Street Corridor is one of Toronto's most densely populated neighbourhoods. It lies in the heart of downtown Toronto and is located near important locations such as the Financial District, the Discovery District, the Hospital District, Ryerson University, University of Toronto, and City Hall. This neighbourhood has 39.3% of its population living in poverty with a median income of $48,737 annually. "In Canada, housing is considered “affordable” if it costs less than 30% of a household’s before-tax income." [@quote2].  With regards to unaffordable housing, the neighbourhood has 57.2% of the population living in unaffordable housing. 62.2% of the population are a visible minority population and 79.0% have a Bachelor's degree or higher.
+
+### Church Yonge Corridor
+
+Church-Yonge Corridor is located in Toronto's downtown area and is situated at the intersection of Church and Yonge. This neighbourhood has 28.7% of its population living in poverty with a median income of $56,366 annually. Church-Yonge Corridor has 45.3% of its population living in unafforable housing, 41.0% as a visible minority, and 64.0% with a Bachelor's degree or higher.
+
+### Humber Summit
+
+Humber Summit is located in Toronto's North York area and is sandwiched vertically between Steeles Avenue West and Finch Avenue West, and horizontally between the Humber River Branch and Highway 400. This neighbourhood has 20.1% of its population living in poverty with a median income of $61,373 annually. Humber Summit has 31.6% of its population living in unafforable housing, 65.6% as a visible minority, and 19.3% with a Bachelor's degree or higher.
+
+### Kensington Chinatown
+
+Kensington-Chinatown is sandwiched vertically between College Street and Queen Street West, and horizontally between the Bathurst Street and University Avenue, which is located in Toronto's Downtown area. This neighbourhood has 40.3% of its population living in poverty with a median income of $44,216 annually. Kensington-Chinatown has 48.1% of its population living in unafforable housing, 60.3% as a visible minority, and 48.6% with a Bachelor's degree or higher.
+
+### Moss Park
+
+Moss Park is sandwiched vertically between College Street and Queen Street West, and horizontally between the Bathurst Street and University Avenue, which is located in Toronto's Downtown area. This neighbourhood has 34.6% of its population living in poverty with a median income of $52,490 annually. Moss Park has 39.9% of its population living in unafforable housing, 42.6% as a visible minority, and 54.9% with a Bachelor's degree or higher.
+
+### University
+
+University is sandwiched vertically between Bloor Street West and College Street, and horizontally between the Bathurst Street and Queen's Park, which is located in Toronto's Downtown area. This neighbourhood houses the University of Toronto and has 29.0% of its population living in poverty with a median income of $57,847 annually. University has 46.8% of its population living in unafforable housing, 33.0% as a visible minority, and 68.4% with a Bachelor's degree or higher.
+
+### West Humber Clairville
+
+West Humber-Clairville is sandwiched vertically between Steeles Avenue and Highway 401 West, and horizontally between the Highway 427 North and Kipling Avenue, which is located in Toronto's Etobicoke. This neighbourhood has 18.1% of its population living in poverty with a median income of $70,741 annually. West Humber-Clairville has 31.8% of its population living in unafforable housing, 82.0% as a visible minority, and 28.3% with a Bachelor's degree or higher.
+
+### Yorkdale Glen Park
+
+Yorkdale-Glen Park is sandwiched vertically between Highway 401 and Stayner Avenue, and horizontally between the Canadian National Rail and Bathurst Street, which is located in Toronto's North York Area. This neighbourhood has 17.1% of its population living in poverty with a median income of $63,778 annually. Yorkdale-Glen Park has 30.7% of its population living in unafforable housing, 45.2% as a visible minority, and 25.5% with a Bachelor's degree or higher.
+
+## Low Crime Rate Neighbourhoods
+
+### Centennial Scarborough
+
+Centennial Scarborough is sandwiched vertically between Kingston Road and the Scarborough Shoreline, and horizontally between the Highland Creek and Port Union Road, which is located in Toronto's Scarborough. This neighbourhood has 7.0% of its population living in poverty with a median income of $114,897 annually. Centennial Scarborough has 17.5% of its population living in unafforable housing, 43.6% as a visible minority, and 44.8% with a Bachelor's degree or higher.
+
+### Flemingdon Park
+
+Flemingdon Park is sandwiched vertically between Eglington Avenue East and Old Lawrence Avenue, and horizontally between the Don River West Branch and the Don River East Branch, which is located in Toronto's North York. This neighbourhood has 34.6% of its population living in poverty with a median income of $48,917 annually. Flemingdon Park has 44.8% of its population living in unafforable housing, 78.6% as a visible minority, and 34.9% with a Bachelor's degree or higher.
+
+### Ionview
+
+Ionview is situated in Toronto's Scarborough district and starts at the intersection of Birchmount Road and Ranstone Gardens. It follows east along the Gatineau Hydro Corridor Trail and south along Birchmount Road, all of which is surrounded by the Canada National Rail. This neighbourhood has 24.5% of its population living in poverty with a median income of $53,177 annually. Ionview has 33.5% of its population living in unafforable housing, 73.1% as a visible minority, and 29.3% with a Bachelor's degree or higher.
+
+### Humber Heights Westmount
+
+Humber Heights-Westmount is situated in Toronto's Etobicoke district and starts at the intersection of Royal York Road and Eglington Avenue West. It follows north and east along these major roads and is cut off by the Humber River. This neighbourhood has 14.9% of its population living in poverty with a median income of $68,996 annually. Humber Heights-Westmount has 32.0% of its population living in unafforable housing, 27.2% as a visible minority, and 33.0% with a Bachelor's degree or higher.
+
+## Toronto
+
+Toronto is the capital of Ontario, but not the capital of Canada (as many foreigners understandably mistake). It consists of four districts: Etobicoke, Downtown Area, North York, and Scarborough. In Toronto, 21.9% of the population is living in poverty with a median income of $65,829 annually. Toronto has 36.6% of its population living in unafforable housing, 51.5% as a visible minority, and 44.1% with a Bachelor's degree or higher.
+
+## Comparison
+
+First, compare statistics of higher crime rate areas with the statistics of Toronto. Neighbourhoods with higher auto theft crimes are Humber Summit, West Humber-Clairville, and Yorkdale-Glen Park. Consistently among these three, there is a lower percentage of people living in poverty, in unaffordable housing, and with a bachelor's degree or higher. They mostly have a higher proportion of visible minorities (apart from Yorkdale-Glen Park). With break and enter crimes, the neighbourhoods discussed are Bay Street Corridor, Church-Yonge Corridor, Kensington-Chinatown, Moss Park, and University. Properties of these neighbourhoods include having a higher than average poverty, unaffordable housing rate, and rate of people with a bachelor's degree or higher. There is generally a lower than average visible minority population. It is worth noting that these two sets of neighbourhoods have no overlap and contrast completely when it comes to these statistics. Robbery neighbourhoods include a collection of neighbourhoods from both auto theft and break and enter neighbourhoods. There do not seem to be an trends regarding their statistics in any of the categories.
+
+In comparing these crimes, speculations can be made about why these crimes have occurred in said neighbourhoods. Poverty rates, rates of people living in unaffordable housing, and the rate of people with a bachelor's degree seem to all be correlated positively. There seems to be no relationship between these three and the rate of visible minorities. Focusing on auto theft, the three neighbourhoods looked at (Humber Summit, West Humber Clairville, and Yorkdale Glen Park) share some attributes. They are all affluent neighbourhoods with fewer people living in poverty and are situated far from the heart of Toronto so, there is a need to commute to work or school. Logically, these neighbourhoods have a higher likelihood of people owning cars and thus, a more likely incident of auto theft. Interestingly, these neighbourhoods have a significantly lower rate of people with a bachelor's degree or higher. With breaking and entering, neighbourhoods with a higher rate of poverty, people living in unaffordable housing, and people with a bachelor's degree or higher, seem to be the targeted population. The locations of all the neighbourhoods associated with high rates of breaking and entering are contained in the heart of downtown Toronto. In these areas, rent for apartments is incredibly elevated and are all situated within close proximity to various downtown Universities. With a demographic where people are desperate for cash, whether it be for tuition, rent or for other various reasons, it is understandable that there are more cases of breaking and entering. The randomness of robbery crimes amongst these neighbourhoods we have analyzed can be interpreted through the nature of robbery itself. Robbery can occur anywhere and at any time, while auto theft and breaking and entering require a more concrete location (the location of a given car or living quarter). Thus, the demographic affected by robbery crimes would most understandably be spread out across different neighbourhoods.
+
+Now onto the statistics of lower crime rate areas. There are a diverse range of statistics for each neighbourhood. Remembering Table \@ref(tab:tablerates), we note that Ionview has some of the lowest rates for auto theft and robbery, Humber Heights Westmount for robbery and breaking and entering, and Flemingdon Park and Centennial Scarborough for all three crimes. Ionview and Humber Heights Westmount show a lower poverty rate, unaffordable housing rate, and people with a bachelor's degree rate. These results show a similar demographic to neighbourhoods with higher auto theft rates. Centennial Scarborough and Flemingdon Park show two complete opposites in demographics, yet both have low crime rates in all three categories. Centennial Scarborough has an extremely low poverty and unaffordable housing rate and a slightly above average level of education. Flemingdon Park has a higher than average poverty rate, unaffordable housing rate, and a slightly below average level of education.
+
+## Weaknesses and next steps
+
+The biggest weakness of this paper comes from the data collected; it lacks of demographic information. Crime reports do not contain a more detailed profile and do not contain any demographic data. The demographics used in this paper are able to show who has fallen victim to each crime but does not necessarily include who has committed these crimes. Auto thefts and breaking and entering rates clearly show where each crime has been committed yet there is no data when it comes to the identity of the offender (including which neighbourhood the criminal is from). Thus, the data collected pertains to the victims of such crimes, rather than the criminal.
+
+As a next step, the perspective of one's nature can be further analyzed. As difficult as the data may be to collect, it would be beneficial to show whether the demographics of a given location affects one's character more or less than the DNA they are given at birth. Another option to further this paper is to include more data from other crimes included in the data set and analyze a larger set of neighbourhoods. Perhaps this will yield a more concrete relationship between certain crimes and where they are committed. As mentioned previously, the lack of information given within each crime report is not sufficient for the purposes of this paper and so, if demographics could be incorporated into each crime report (i.e. more information on the offender and the victims of crimes), then more conclusions can be further extrapolated.
+
+## Conclusion
+
+The accuracy and collection of crime rates leaves much to be desired. Many crimes go unreported and the ones that do get reported are not always solved. The lack in demographics when it comes to crime reports is evident, potentially for one reason or another, whether it be ethical reasons or the case being unsolved. With the information given by the City of Toronto, clear relationships between certain demographics and neighbourhoods with high crime rates are pronounced while others are minimal at best. With auto theft crimes, they occur in neighbourhoods with decreased poverty, less people living in unaffordable housing, and a lower level of education. Breaking and entering often occurs in neighbourhoods with increased poverty, more people living in unaffordable housing, and more people with a higher level of education. From the data sampled and viewed, it is clear that the relationship between demographics is not a two-way street. Not all poverty-stricken neighbourhoods with increased rates of people living in unaffordable housing and varying levels of education will lead to a given neighbourhood having higher rates of crime. On the other hand, certain crimes tend to congregate in certain areas; when these crimes do occur, it is more likely that they happen in certain types of neighbourhoods. In order to paint a fuller picture and to tackle the root of the problem when it comes to nurture and how we should nurture the next generation, detailed documentation in crime reports involving demographics is necessary.
+
+\newpage
+
+
+# References
+
+
