@@ -2,7 +2,7 @@
 title: "The Nature of a Criminal"
 author: 
   - Isaac Ng
-thanks: "Code and data are available at: LINK."
+thanks: "Code and data are available at: https://github.com/caasig1/The-Nature-of-a-Criminal"
 date: "`r format(Sys.time(), '%d %B %Y')`"
 abstract: "In this paper, data from Open Data Toronto is used to find a relationship between a given crime and where it occurs. Although crime rates have fluctuated for each neighbourhood each year, the neighbourhoods with higher crime rates have stayed above the average Toronto Neighbourhood's crime rate. Using demographic data in parallel with crime data, certain crimes were found to be more likely to occur in a certain demographic of neighbourhood while others held no such relationship. Without a complete picture of detailed demographic data linked to each crime, the fundamental urges of criminals are unlikely to be found thus, limiting how humans can better nurture the next generation."
 output:
